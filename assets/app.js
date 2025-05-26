@@ -1,6 +1,29 @@
 
 let items = [];
 let budget = 100;
+let recognition;
+let recognizing = false;
+
+function toggleMic() {
+  if (!('webkitSpeechRecognition' in window)) {
+    return alert('المتصفح لا يدعم التعرف على الصوت');
+  }
+  if (!recognition) {
+    recognition = new webkitSpeechRecognition();
+    recognition.lang = 'ar-SA';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.onresult = (e) => {
+      document.getElementById('itemName').value = e.results[0][0].transcript;
+    };
+  }
+  if (recognizing) {
+    recognition.stop();
+  } else {
+    recognition.start();
+  }
+  recognizing = !recognizing;
+}
 
 function render() {
   const list = document.getElementById("itemsList");
@@ -15,6 +38,7 @@ function render() {
       السعر: <input type="number" value="\${item.price}" onchange="editItem(\${index}, 'price', this.value)" />
       الكمية: <input type="number" value="\${item.qty}" onchange="editItem(\${index}, 'qty', this.value)" />
       <button onclick="removeItem(\${index})">🗑️</button>
+      <button onclick="toggleMic()">🎤</button>
     \`;
     list.appendChild(li);
   });
